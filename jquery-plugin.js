@@ -79,16 +79,9 @@
          * this.$someSubElement.on('click.' + pluginName, function() {
          *      // Do something
          * });
-         *
-         
+         *         
          */
         init: function() {
-
-            console.log("init");
-            console.log(this);
-
-            this.somePublicMethod();
-
 
         },
 
@@ -122,16 +115,27 @@
          * @return {[type]}
          */
         somePublicMethod: function(foo, bar) {
-            console.log("somePublicMethod");
-            console.log(this);
 
             // This is a call to a pseudo private method
             this._pseudoPrivateMethod();
 
             // This is a call to a real private method. You need to use 'call' or 'apply'
             privateMethod.call(this);
+        },
 
-            privateMethod();
+        /**
+         * Another public method which acts as a getter method. You can call as any usual
+         * public method:
+         *
+         * @example
+         * $('#element').jqueryPlugin('someGetterMethod');
+         *
+         * to get some interesting info from your plugin.
+         * 
+         * @return {[type]} Return something
+         */
+        someGetterMethod: function() {
+
         },
 
         /**
@@ -143,8 +147,7 @@
          *  $('#element').jqueryPlugin('_pseudoPrivateMethod');  // Will not work
          */
         _pseudoPrivateMethod: function() {
-            console.log("_pseudoPrivateMethod");
-            console.log(this);
+            
         }
     };
 
@@ -157,34 +160,37 @@
         console.log(this);
     };
 
-    //
-    // Plugin wrapper around the constructor,
-    // preventing against multiple instantiations and allowing any
-    // public function (whose name doesn't start with an underscore) to be 
-    // called via the jQuery plugin:
-    // e.g. $(element).defaultPluginName('functionName', arg1, arg2)
-    //
-
     /**
-     * [ description]
-     * @param  {[type]} options [description]
-     * @return {[type]}
+     * This is were we register our plugin withint jQuery plugins.
+     * It is a plugin wrapper around the constructor and prevents agains multiple
+     * plugin instantiation (soteing a plugin reference within the element's data)
+     * and avoid any function starting with an underscore to be called (emulating
+     * private functions).
+     *
+     * @example
+     * $('#element').jqueryPlugin({
+     *     defaultOption: 'this options overrides a default plugin option',
+     *     additionalOption: 'this is a new option'
+     * });
      */
     $.fn[pluginName] = function(options) {
         var args = arguments;
 
         if (options === undefined || typeof options === 'object') {
-            // Create a plugin instance for each selected element.
+            // Creates a new plugin instance, for each selected element, and
+            // stores a reference withint the element's data
             return this.each(function() {
                 if (!$.data(this, 'plugin_' + pluginName)) {
                     $.data(this, 'plugin_' + pluginName, new Plugin(this, options));
                 }
             });
         } else if (typeof options === 'string' && options[0] !== '_' && options !== 'init') {
-            // Call a pluguin method for each selected element.
+            // Call a public pluguin method (not starting with an underscore) for each 
+            // selected element.
             if (Array.prototype.slice.call(args, 1).length == 0 && $.inArray(options, $.fn[pluginName].getters) != -1) {
                 // If the user does not pass any arguments and the method allows to
-                // work as a getter then break the chainability
+                // work as a getter then break the chainability so we can return a value
+                // instead the element reference.
                 var instance = $.data(this[0], 'plugin_' + pluginName);
                 return instance[options].apply(instance, Array.prototype.slice.call(args, 1));
             } else {
@@ -199,30 +205,17 @@
         }
     };
 
-    //
-    // Names of the pluguin methods that can act as a getter method.
-    //
-    $.fn[pluginName].getters = ['tags'];
+    /**
+     * Names of the pluguin methods that can act as a getter method.
+     * @type {Array}
+     */
+    $.fn[pluginName].getters = ['someGetterMethod'];
 
-    //
-    // Default options
-    //
+    /**
+     * Default options
+     */
     $.fn[pluginName].defaults = {
-        fieldSeparator: ",",
-        readOnly: false,
-        // Callback invoked when user calls the 'tags' method
-        onTagsAdded: function() {
-        },
-        // Callback invoked when user calls the 'remove' method
-        onTagsRemoved: function() {
-        },
-        // Callback invoked when user calls the 'clear' method. 
-        // Note: Internally the 'clear' method uses the 'remove'.
-        onClear: function() {
-        },
-        // Callback invoked when the user click a tag label
-        onClick: function() {
-        }
+        defaultOption: "I'm a default option"
     };
 
 })(jQuery, window, document);

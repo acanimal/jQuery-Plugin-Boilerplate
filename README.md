@@ -1,4 +1,6 @@
 jQuery-Plugin-Boilerplate
 =========================
 
-Boilerplate code to create custom jQuery plugins
+My boilerplate self documented code to create custom jQuery plugins.
+Feel free to contribute.
+
