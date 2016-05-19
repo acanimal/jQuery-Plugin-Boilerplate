@@ -61,7 +61,7 @@
     }
 
     /**
-     * Set up your Plugin protptype with desired methods.
+     * Set up your Plugin prototype with desired methods.
      * It is a good practice to implement 'init' and 'destroy' methods.
      */
     Plugin.prototype = {
